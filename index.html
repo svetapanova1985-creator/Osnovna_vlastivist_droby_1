@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тренажер: Основна властивість дробу</title>
+    <style>
+        :root {
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --primary-color: #8E44AD; 
+            --success-color: #2ECC71;
+            --error-color: #E74C3C;
+            --warning-color: #F39C12;
+            --text-main: #2C3E50;
+            --text-muted: #7F8C8D;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            max-width: 600px;
+            width: 95%;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .progress-text {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .streak-badge {
+            background-color: #f4ebf9;
+            color: var(--primary-color);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: bold;
+        }
+        
+        .task-instruction {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 25px;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .math-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            margin-bottom: 30px;
+        }
+
+        .fraction {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 10px;
+        }
+
+        .num {
+            border-bottom: 3px solid var(--text-main);
+            padding: 0 10px 2px;
+            min-width: 30px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .den {
+            padding: 2px 10px 0;
+            min-width: 30px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-bridge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 15px;
+            position: relative;
+        }
+
+        .action-input-group {
+            display: flex;
+            align-items: center;
+            background: #fff;
+            padding: 2px 8px;
+            border-radius: 20px;
+            border: 2px dashed #bdc3c7;
+            margin-bottom: 5px;
+        }
+
+        .action-op {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-right: 5px;
+        }
+
+        .action-bridge input {
+            width: 40px;
+            height: 30px;
+            font-size: 1.1rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin: 0;
+            background-color: #fdfdfd;
+        }
+
+        .arrow {
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            font-weight: bold;
+        }
+
+        input {
+            width: 50px;
+            height: 40px;
+            font-size: 1.3rem;
+            text-align: center;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.3s;
+            margin: 2px 0;
+        }
+
+        input:focus {
+            border-color: var(--primary-color);
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            width: 100%;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        .btn:hover { background-color: #732d91; }
+        .btn:active { transform: scale(0.98); }
+
+        .feedback {
+            margin-top: 20px;
+            min-height: 50px;
+            font-weight: 500;
+            line-height: 1.5;
+            border-radius: 8px;
+            padding: 12px;
+            display: none;
+            font-size: 0.95rem;
+        }
+
+        .feedback.success {
+            display: block;
+            background-color: rgba(46, 204, 113, 0.1);
+            color: var(--success-color);
+        }
+
+        .feedback.error {
+            display: block;
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--error-color);
+        }
+        
+        .feedback.warning {
+            display: block;
+            background-color: rgba(243, 156, 18, 0.1);
+            color: var(--warning-color);
+        }
+
+        .completion-screen {
+            display: none;
+        }
+        
+        .completion-screen h1 {
+            color: var(--success-color);
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+        }
+
+        .completion-screen p {
+            font-size: 1.1rem;
+            color: var(--text-main);
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        
+        .trophy {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: pop 0.5s ease-out;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0); }
+            80% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div id="game-interface">
+        <h2>Основна властивість дробу</h2>
+        <div class="progress-text">
+            Серія відповідей: <span id="streak" class="streak-badge">0</span> / 10
+        </div>
+        
+        <div id="instruction" class="task-instruction">Завдання</div>
+
+        <div class="math-container">
+            <div class="fraction">
+                <div class="num" id="start-num">1</div>
+                <div class="den" id="start-den">2</div>
+            </div>
+            
+            <div class="action-bridge">
+                <div class="action-input-group">
+                    <span id="op-sign" class="action-op">×</span>
+                    <input type="number" id="user-factor" placeholder="?" autocomplete="off">
+                </div>
+                <div class="arrow">➡</div>
+            </div>
+            
+            <div class="fraction" id="result-fraction">
+                </div>
+        </div>
+
+        <button class="btn" id="check-btn">Перевірити</button>
+        <button class="btn" id="next-btn" style="display: none;">Наступний приклад</button>
+
+        <div id="feedback" class="feedback"></div>
+    </div>
+
+    <div id="completion-interface" class="completion-screen">
+        <div class="trophy">🏅</div>
+        <h1>Чудова робота!</h1>
+        <p>Ви успішно розв'язали <b>10 завдань підряд</b>. Тепер ви ідеально розумієте, як працює основна властивість дробу, і готові до додавання!</p>
+        <button class="btn" id="restart-btn" style="background-color: var(--success-color);">Пройти знову</button>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let mode = 'expand'; 
+        let a, b, factor; 
+        let streak = 0;
+
+        const startNumEl = document.getElementById('start-num');
+        const startDenEl = document.getElementById('start-den');
+        const opSignEl = document.getElementById('op-sign');
+        const userFactorEl = document.getElementById('user-factor');
+        const resultFractionEl = document.getElementById('result-fraction');
+        const instructionEl = document.getElementById('instruction');
+        
+        const checkBtn = document.getElementById('check-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const feedbackEl = document.getElementById('feedback');
+        const streakEl = document.getElementById('streak');
+        
+        const gameInterface = document.getElementById('game-interface');
+        const completionInterface = document.getElementById('completion-interface');
+
+        const gcd = (x, y) => y === 0 ? Math.abs(x) : gcd(y, x % y);
+
+        function generateProblem() {
+            feedbackEl.className = 'feedback';
+            feedbackEl.style.display = 'none';
+            checkBtn.style.display = 'block';
+            nextBtn.style.display = 'none';
+            userFactorEl.value = '';
+
+            mode = Math.random() > 0.5 ? 'expand' : 'simplify';
+
+            do {
+                b = Math.floor(Math.random() * 8) + 2; 
+                a = Math.floor(Math.random() * (b - 1)) + 1; 
+            } while (gcd(a, b) !== 1);
+
+            factor = Math.floor(Math.random() * 8) + 2; 
+
+            if (mode === 'expand') {
+                instructionEl.innerHTML = `Зведи дріб до знаменника <b>${b * factor}</b>. <br><span style="font-size:0.9em; color:#7F8C8D;">Вкажи додатковий множник та новий чисельник.</span>`;
+                
+                startNumEl.innerText = a;
+                startDenEl.innerText = b;
+                opSignEl.innerText = '×';
+                
+                resultFractionEl.innerHTML = `
+                    <input type="number" id="user-result-num" placeholder="?" autocomplete="off">
+                    <div class="den" style="font-weight: bold; border-top: 3px solid var(--text-main); margin-top: 2px;">${b * factor}</div>
+                `;
+                
+            } else {
+                instructionEl.innerHTML = `Скороти дріб до <b>нескоротного</b>. <br><span style="font-size:0.9em; color:#7F8C8D;">Вкажи, на що ділимо (спільний дільник), та запиши відповідь.</span>`;
+                
+                startNumEl.innerText = a * factor;
+                startDenEl.innerText = b * factor;
+                opSignEl.innerText = ':';
+                
+                resultFractionEl.innerHTML = `
+                    <input type="number" id="user-result-num" placeholder="?" autocomplete="off">
+                    <input type="number" id="user-result-den" placeholder="?" autocomplete="off">
+                `;
+            }
+
+            const inputs = resultFractionEl.querySelectorAll('input');
+            inputs.forEach(input => input.addEventListener('keypress', handleEnterKey));
+            
+            userFactorEl.focus();
+        }
+
+        function checkAnswer() {
+            const uFactor = parseInt(userFactorEl.value);
+            const uResNum = parseInt(document.getElementById('user-result-num').value);
+            
+            const uResDenInput = document.getElementById('user-result-den');
+            const uResDen = uResDenInput ? parseInt(uResDenInput.value) : (b * factor);
+
+            if (isNaN(uFactor) || isNaN(uResNum) || (uResDenInput && isNaN(uResDen))) {
+                showFeedback('Заповни всі порожні клітинки перед перевіркою.', 'warning');
+                return;
+            }
+
+            let isFactorCorrect = false;
+            let isResultCorrect = false;
+            let expectedNum, expectedDen;
+
+            if (mode === 'expand') {
+                isFactorCorrect = (uFactor === factor);
+                expectedNum = a * factor;
+                expectedDen = b * factor;
+                isResultCorrect = (uResNum === expectedNum);
+            } else { 
+                isFactorCorrect = (uFactor === factor);
+                expectedNum = a;
+                expectedDen = b;
+                isResultCorrect = (uResNum === expectedNum && uResDen === expectedDen);
+            }
+
+            if (isFactorCorrect && isResultCorrect) {
+                streak++;
+                streakEl.innerText = streak;
+                
+                if (streak >= 10) {
+                    showCompletion();
+                    return;
+                }
+                showFeedback('Ідеально! Ти чудово розумієш цю властивість.', 'success');
+                checkBtn.style.display = 'none';
+                nextBtn.style.display = 'block';
+                nextBtn.focus();
+            } 
+            else if (isFactorCorrect && !isResultCorrect) {
+                resetStreak();
+                if (mode === 'expand') {
+                    showFeedback(`Множник (${uFactor}) визначено правильно! Але помилка в обчисленні чисельника. Скільки буде ${a} × ${uFactor}?`, 'error');
+                } else {
+                    showFeedback(`Дільник (${uFactor}) знайдено правильно! Але ти помилився при діленні. Поділи чисельник і знаменник на ${uFactor}.`, 'error');
+                }
+            } 
+            else if (!isFactorCorrect && isResultCorrect) {
+                resetStreak();
+                showFeedback(`Фінальний дріб правильний, але ${mode === 'expand' ? 'множник' : 'дільник'} вказано хибно. На яке число треба ${mode === 'expand' ? 'помножити' : 'поділити'} знаменник?`, 'warning');
+            } 
+            else {
+                resetStreak();
+                if (mode === 'expand') {
+                    showFeedback(`Неправильно. Щоб отримати знаменник ${b * factor} з ${b}, треба помножити на ${factor}. Спробуй виправити!`, 'error');
+                } else {
+                    if ((a * factor) % uFactor === 0 && (b * factor) % uFactor === 0) {
+                        showFeedback(`Ти поділив на ${uFactor}, але це не найбільший спільний дільник. Дріб можна скоротити ще більше!`, 'warning');
+                    } else {
+                        showFeedback(`Спробуй ще раз. Підказка: і чисельник, і знаменник діляться на ${factor}.`, 'error');
+                    }
+                }
+            }
+        }
+
+        function resetStreak() {
+            streak = 0;
+            streakEl.innerText = streak;
+        }
+
+        function showFeedback(text, type) {
+            feedbackEl.innerHTML = text;
+            feedbackEl.className = `feedback ${type}`;
+            feedbackEl.style.display = 'block';
+        }
+
+        function showCompletion() {
+            gameInterface.style.display = 'none';
+            completionInterface.style.display = 'block';
+        }
+
+        function restartGame() {
+            streak = 0;
+            streakEl.innerText = streak;
+            completionInterface.style.display = 'none';
+            gameInterface.style.display = 'block';
+            generateProblem();
+        }
+
+        checkBtn.addEventListener('click', checkAnswer);
+        nextBtn.addEventListener('click', generateProblem);
+        restartBtn.addEventListener('click', restartGame);
+
+        const handleEnterKey = function(event) {
+            if (event.key === 'Enter') {
+                if (checkBtn.style.display !== 'none') {
+                    checkAnswer();
+                } else if (nextBtn.style.display !== 'none') {
+                    generateProblem();
+                }
+            }
+        };
+
+        userFactorEl.addEventListener('keypress', handleEnterKey);
+
+        generateProblem();
+    });
+</script>
+
+</body>
+</html>
